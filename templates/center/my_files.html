@@ -1,0 +1,15 @@
+<h2>My Encrypted Files</h2>
+
+<ul>
+{% for f in files %}
+    <li>
+        {{ f.file.name }}
+        |
+        <a href="/download/{{ f.id }}/">Download</a>
+    </li>
+{% empty %}
+    <li>No files uploaded yet.</li>
+{% endfor %}
+</ul>
+
+<a href="/center_user/">Back</a>
