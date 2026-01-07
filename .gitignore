@@ -11,3 +11,4 @@ files/
 # Virtual environment
 venv/
 env/
+.env
