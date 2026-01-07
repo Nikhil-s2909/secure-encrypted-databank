@@ -1,0 +1,15 @@
+<h2>My Encrypted Files</h2>
+
+<ul>
+{% for f in files %}
+    <li>
+        {{ f.file.name }}
+        |
+        <a href="{% url 'request_download' f.id %}" class="btn btn-warning">
+            Download (OTP)
+        </a>
+    </li>
+{% empty %}
+    <li>No files uploaded yet.</li>
+{% endfor %}
+</ul>

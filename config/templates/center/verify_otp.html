@@ -1,0 +1,7 @@
+<form method="POST">
+    {% csrf_token %}
+    <label>Enter OTP sent to your email</label>
+    <input type="text" name="otp" required class="form-control">
+    <br>
+    <button type="submit" class="btn btn-success">Verify & Download</button>
+</form>
