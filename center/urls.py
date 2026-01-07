@@ -9,4 +9,8 @@ urlpatterns = [
     path('upload/', views.upload_file),
     path('my_files/', views.my_files),
     path('download/<int:file_id>/', views.decrypt_and_download),
+    path('request_download/<int:file_id>/', views.request_download, name='request_download'),
+    path('verify_otp/<int:file_id>/', views.verify_otp, name='verify_otp'),
+
+
 ]

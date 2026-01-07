@@ -129,3 +129,72 @@ def decrypt_and_download(request, file_id):
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
 
     return response
+
+
+#OTP Generation Function
+
+from django.utils import timezone
+from datetime import timedelta
+def request_download(request, file_id):
+    if 'center_id' not in request.session:
+        return redirect('/center_login/')
+
+    sf = SecureFile.objects.get(id=file_id)
+
+    # ownership check
+    if sf.owner.id != request.session['center_id']:
+        return HttpResponse("Unauthorized", status=403)
+
+    otp = str(random.randint(100000, 999999))
+    sf.otp = otp
+    sf.otp_created = timezone.now()
+    sf.save()
+
+    send_mail(
+        subject="OTP for Secure File Download",
+        message=f"Your OTP for downloading the file is: {otp}\n\nValid for 5 minutes.",
+        from_email=settings.EMAIL_HOST_USER,
+        recipient_list=[sf.owner.email],
+        fail_silently=False,
+    )
+
+    messages.success(request, "OTP sent to your email")
+    return redirect(f'/verify_otp/{sf.id}/')
+def verify_otp(request, file_id):
+    if 'center_id' not in request.session:
+        return redirect('/center_login/')
+
+    sf = SecureFile.objects.get(id=file_id)
+
+    if request.method == "POST":
+        entered_otp = request.POST.get('otp')
+
+        if sf.otp != entered_otp:
+            messages.error(request, "Invalid OTP")
+            return redirect(request.path)
+
+        if timezone.now() > sf.otp_created + timedelta(minutes=5):
+            messages.error(request, "OTP expired")
+            return redirect('/center_user/')
+
+        # ✅ OTP VALID → CLEAR IT
+        sf.otp = None
+        sf.save()
+
+        # 🔓 DECRYPT
+        cipher = Blowfish.new(sf.secure_key.encode(), Blowfish.MODE_ECB)
+        with open(sf.file.path, 'rb') as f:
+            encrypted_data = f.read()
+
+        decrypted_data = cipher.decrypt(encrypted_data).rstrip(b"\0")
+
+        response = HttpResponse(
+            decrypted_data,
+            content_type='application/octet-stream'
+        )
+
+        filename = sf.file.name.split('/')[-1]
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        return response
+
+    return render(request, 'center/verify_otp.html')

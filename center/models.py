@@ -18,3 +18,7 @@ class SecureFile(models.Model):
     encrypted = models.BooleanField(default=False)
     secure_key = models.CharField(max_length=50, null=True, blank=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
+     # 🔐 OTP fields
+    otp = models.CharField(max_length=6, null=True, blank=True)
+    otp_created = models.DateTimeField(null=True, blank=True)
+    
