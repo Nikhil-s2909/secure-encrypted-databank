@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head><title>My Files</title></head>
+<body>
+<h2>My Files</h2>
+
+<ul>
+{% for file in files %}
+    <li>
+        {{ file.file.name }}
+        <a href="/request_download/{{ file.id }}/">Download</a>
+    </li>
+{% empty %}
+    <li>No files</li>
+{% endfor %}
+</ul>
+
+<a href="/center_user/">Back</a>
+</body>
+</html>
